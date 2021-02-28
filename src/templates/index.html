@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Hacking Market</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="ui container">
+      <h1 class="ui header">Stock Lists</h1>
+      <table class="ui inverted table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Company Name</th>
+            <th class="right aligned">views</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for idx, stock in stocks.items() %}
+          <tr>
+            <td>{{idx}}</td>
+            <td><a href="stock/{{stock}}">{{stock}}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

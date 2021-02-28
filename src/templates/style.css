@@ -1,0 +1,22 @@
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+}
+
+body {
+  padding: 20rem;
+  line-height: 1.7;
+  font-family: "Nunito Sans", sans-serif;
+  color: #555555;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #9be15d, #00e3ae);
+}
+
+h1 {
+  font-family: "Megrim", sans-serif;
+  font-size: 6rem;
+  color: white;
+  text-align: center;
+  position: relative;
+  word-spacing: 3px;
+}
