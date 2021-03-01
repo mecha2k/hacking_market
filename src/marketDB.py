@@ -94,6 +94,12 @@ class MarketDB:
         df.index = df["date"]
         return df
 
+    def getFilteredStock(self, stock_filter):
+        sql = """
+            SELECT * FROM (SELECT code, date, max(close) FROM daily_price) as cdm
+        """
+        df = pd.read_sql(sql, self.conn)
+
 
 if __name__ == "__main__":
     market_db = MarketDB()

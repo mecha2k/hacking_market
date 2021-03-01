@@ -11,8 +11,10 @@ market_db = marketDB.MarketDB()
 
 @app.route("/")
 def home():
-    # name = request.args.get("name", "World")
-    # return {"message": f"Hello, {escape(name)}!", "stocks": market_db.codes}
+    stock_filter = request.args.get("filter", False)
+    if stock_filter == "intraday_highs":
+        pass
+
     return render_template("index.html", stocks=market_db.codes)
 
 

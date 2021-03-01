@@ -15,6 +15,18 @@
   <body>
     <div class="ui container">
       <h1 class="ui header">Stock Lists</h1>
+      <form method="get">
+        <label for="filter">Stock Filter : </label>
+        <select name="filter" id="filter">
+          <option value="">All Stocks</option>
+          <option value="intraday_highs">New Intraday Highs</option>
+          <option value="closing_high">New Closing Highs</option>
+          <option value="intraday_lows">New Intraday Lows</option>
+          <option value="closing_lows">New Closing Lows</option>
+        </select>
+        <input type="submit" />
+      </form>
+
       <table class="ui inverted table">
         <thead>
           <tr>
