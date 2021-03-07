@@ -3,7 +3,7 @@ import os, re
 import pandas as pd
 
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 
 class MarketDB:
@@ -28,10 +28,10 @@ class MarketDB:
         self.conn.close()
 
     def getCompanyInfo(self):
-        sql = "SELECT * FROM company_info"
+        sql = "SELECT * FROM company"
         companyInfo = pd.read_sql(sql, self.conn)
         for idx in range(len(companyInfo)):
-            self.codes[companyInfo["code"].values[idx]] = companyInfo["company"].values[idx]
+            self.codes[companyInfo["code"].values[idx]] = companyInfo["name"].values[idx]
 
     def getDailyPrice(self, code, start_date=None, end_date=None):
         if start_date is None:
@@ -87,7 +87,7 @@ class MarketDB:
         else:
             print(f"ValueError: Code({code}) doesn't exist.")
         sql = (
-            f"SELECT * FROM daily_price WHERE code = '{code}'"
+            f"SELECT * FROM price WHERE code = '{code}'"
             f" and date >= '{start_date}' and date <= '{end_date}'"
         )
         df = pd.read_sql(sql, self.conn)
@@ -95,10 +95,16 @@ class MarketDB:
         return df
 
     def getFilteredStock(self, stock_filter):
-        sql = """
-            SELECT * FROM (SELECT code, date, max(close) FROM daily_price) as cdm
-        """
+        today = date.today().isoformat()
+        today = "2021-02-05"
+        sql = (
+            f"with pdate as (SELECT price.code, company.name, MAX(price.close), date "
+            f"FROM price JOIN company ON price.code = company.code "
+            f"GROUP BY price.code) "
+            f"SELECT * FROM pdate WHERE DATE = '{today}';"
+        )
         df = pd.read_sql(sql, self.conn)
+        print(df)
 
 
 if __name__ == "__main__":
@@ -107,8 +113,8 @@ if __name__ == "__main__":
     # for idx, code in enumerate(market_db.codes):
     #     print(idx, code, market_db.codes[code])
 
-    for idx, stock in market_db.codes.items():
-        print(idx, stock)
+    # for idx, stock in market_db.codes.items():
+    #     print(idx, stock)
 
     # print(market_db.codes)
     # print(market_db.codes.keys())
@@ -116,3 +122,5 @@ if __name__ == "__main__":
 
     data = market_db.getDailyPrice("000020", "2010-01-24", "2021-02-23")
     print(data)
+
+    market_db.getFilteredStock(None)
