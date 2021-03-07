@@ -28,10 +28,10 @@ class MarketDB:
         self.conn.close()
 
     def getCompanyInfo(self):
-        sql = "SELECT * FROM company_info"
+        sql = "SELECT * FROM company"
         companyInfo = pd.read_sql(sql, self.conn)
-        for idx in range(len(companyInfo)):
-            self.codes[companyInfo["code"].values[idx]] = companyInfo["company"].values[idx]
+        for idx_ in range(len(companyInfo)):
+            self.codes[companyInfo["code"].values[idx_]] = companyInfo["company"].values[idx_]
 
     def getDailyPrice(self, code, start_date=None, end_date=None):
         if start_date is None:
@@ -82,12 +82,12 @@ class MarketDB:
         if code in codes_keys:
             pass
         elif code in codes_values:
-            idx = codes_values.index(code)
-            code = codes_keys[idx]
+            idx_ = codes_values.index(code)
+            code = codes_keys[idx_]
         else:
             print(f"ValueError: Code({code}) doesn't exist.")
         sql = (
-            f"SELECT * FROM daily_price WHERE code = '{code}'"
+            f"SELECT * FROM price WHERE code = '{code}'"
             f" and date >= '{start_date}' and date <= '{end_date}'"
         )
         df = pd.read_sql(sql, self.conn)
@@ -96,7 +96,7 @@ class MarketDB:
 
     def getFilteredStock(self, stock_filter):
         sql = """
-            SELECT * FROM (SELECT code, date, max(close) FROM daily_price) as cdm
+            SELECT * FROM (SELECT code, date, max(close) FROM price) as cdm
         """
         df = pd.read_sql(sql, self.conn)
 
