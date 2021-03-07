@@ -96,7 +96,6 @@ class MarketDB:
 
     def getFilteredStock(self, stock_filter):
         today = date.today().isoformat()
-        today = "2021-02-05"
         sql = (
             f"with pdate as (SELECT price.code, company.name, MAX(price.close), date "
             f"FROM price JOIN company ON price.code = company.code "
@@ -104,7 +103,7 @@ class MarketDB:
             f"SELECT * FROM pdate WHERE DATE = '{today}';"
         )
         df = pd.read_sql(sql, self.conn)
-        print(df)
+        print(df, stock_filter, today)
 
 
 if __name__ == "__main__":
