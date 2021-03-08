@@ -22,10 +22,59 @@ class MarketDB:
             charset="utf8",
         )
         self.codes = dict()
+        self.createStockTable()
         self.getCompanyInfo()
 
     def __del__(self):
         self.conn.close()
+
+    def createStockTable(self):
+        with self.conn.cursor() as cursor:
+            sql = """
+            CREATE TABLE IF NOT EXISTS company (
+                code VARCHAR(20),
+                name VARCHAR(40),
+                last_update DATE,
+                PRIMARY KEY (code))
+            """
+            cursor.execute(sql)
+            sql = """
+            CREATE TABLE IF NOT EXISTS price (
+                code VARCHAR(20),
+                date DATE,
+                open BIGINT(20),
+                high BIGINT(20),
+                low BIGINT(20),
+                close BIGINT(20),
+                diff BIGINT(20),
+                volume BIGINT(20),
+                PRIMARY KEY (code, date))
+            """
+            cursor.execute(sql)
+            sql = """
+            CREATE TABLE IF NOT EXISTS strategy (
+                id INTEGER PRIMARY KEY,
+                name VARCHAR(40) NOT NULL);
+            """
+            cursor.execute(sql)
+            sql = """
+            CREATE TABLE IF NOT EXISTS stock_strategy (
+                stock_code VARCHAR(20) NOT NULL,
+                strategy_id INTEGER NOT NULL,
+                foreign key (stock_code) references company(code),
+                foreign key (strategy_id) references strategy(id));
+            """
+            cursor.execute(sql)
+
+            strategies = ["opening_breakout", "opening_breakdown"]
+            df = pd.read_sql("select * from strategy", self.conn)
+            if df is None:
+                for idx, strategy in enumerate(strategies):
+                    sql = f"INSERT INTO strategy (id, name) VALUES ('{idx}', '{strategy}')"
+                    cursor.execute(sql)
+
+        self.conn.commit()
+        pass
 
     def getCompanyInfo(self):
         sql = "SELECT * FROM company"
@@ -92,16 +141,16 @@ class MarketDB:
         )
         df = pd.read_sql(sql, self.conn)
         df.index = df["date"]
-        return df
+        return df.sort_index(ascending=False)
 
     def getFilteredStock(self, stock_filter):
         today = date.today().isoformat()
         today = "2021-02-05"
         sql = (
-            f"with pdate as (SELECT price.code, company.name, MAX(price.close), date "
+            f"with pd as (SELECT price.code, company.name, MAX(price.close), date "
             f"FROM price JOIN company ON price.code = company.code "
             f"GROUP BY price.code) "
-            f"SELECT * FROM pdate WHERE DATE = '{today}';"
+            f"SELECT * FROM pd WHERE DATE = '{today}';"
         )
         df = pd.read_sql(sql, self.conn)
         print(df)
@@ -120,7 +169,35 @@ if __name__ == "__main__":
     # print(market_db.codes.keys())
     # print(market_db.codes.values())
 
-    data = market_db.getDailyPrice("000020", "2010-01-24", "2021-02-23")
-    print(data)
+    # data = market_db.getDailyPrice("000020", "2010-01-24", "2021-02-23")
+    # print(data)
+    #
+    # market_db.getFilteredStock(None)
 
-    market_db.getFilteredStock(None)
+    strategies = pd.read_sql("select * from strategy", market_db.conn)
+    print(strategies)
+    print(strategies.values.tolist())
+
+    s_dict = strategies.to_dict()
+    print(s_dict)
+    print(s_dict.keys())
+    print(s_dict.values())
+    print(s_dict["id"][0])
+    print(s_dict["name"][0])
+
+    for idx in s_dict:
+        for i in s_dict[idx]:
+            print(i, s_dict[idx][i])
+
+    # for x in s_dict.keys():
+    #     print(x)
+    # for x in s_dict.values():
+    #     print(x)
+    #
+    # for key, value in strategies.iteritems():
+    #     print(key)
+    #     print(value)
+    #     print("---------------")
+    #
+    # s_json = strategies.to_json(orient="values")
+    # print(s_json)

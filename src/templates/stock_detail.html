@@ -48,6 +48,20 @@
         </script>
       </div>
       <!-- TradingView Widget END -->
+
+      <form method="post">
+        <label for="strategy_id">
+          <select name="strategy_id" id="strategy_id">
+            {% for strategy in strategies %}
+            <option value="{{ strategy.id }}">{{ strategy.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <!--        <label>-->
+        <!--          <input type="text" name="stock_id" value="{{ company_stock[0][0] }}" />-->
+        <!--        </label>-->
+        <input type="submit" value="Apply Strategy" />
+      </form>
       <table class="ui inverted table">
         <thead>
           <tr>
