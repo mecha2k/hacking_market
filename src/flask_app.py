@@ -1,3 +1,5 @@
+import pandas as pd
+
 from flask import Flask, escape, request
 from flask import render_template
 
@@ -21,8 +23,17 @@ def home():
 @app.route("/stock/<name>")
 def get_company_stock(name):
     data = market_db.getDailyPrice(name)
+    strategies = pd.read_sql("select * from strategy", market_db.conn)
+    strategies = strategies.to_dict()
+    for arg in strategies:
+        print(arg, strategies[arg])
+
     return render_template(
-        "stock_detail.html", name=name, company_stock=data.values.tolist(), length=len(data)
+        "stock_detail.html",
+        name=name,
+        company_stock=data.values.tolist(),
+        length=len(data),
+        strategies=strategies,
     )
 
 
