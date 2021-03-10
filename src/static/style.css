@@ -1,15 +1,14 @@
 html {
-  font-size: 62.5%;
+  font-size: 100%;
   box-sizing: border-box;
 }
 
 body {
-  padding: 20rem;
-  line-height: 1.7;
+  padding: 2rem;
+  line-height: 1.6rem;
   font-family: "Nunito Sans", sans-serif;
   color: #555555;
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #9be15d, #00e3ae);
 }
 
 h1 {
