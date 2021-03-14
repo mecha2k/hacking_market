@@ -148,14 +148,46 @@ class MarketDB:
 
     def getFilteredStock(self, stock_filter):
         today = date.today().isoformat()
-        sql = (
-            f"with pd as (SELECT price.code, company.name, MAX(price.close), date "
-            f"FROM price JOIN company ON price.code = company.code "
-            f"GROUP BY price.code) "
-            f"SELECT * FROM pd WHERE DATE = '{today}';"
-        )
-        df = pd.read_sql(sql, self.conn)
-        print(df, stock_filter, today)
+
+        if stock_filter == "new_closing_highs":
+            sql = (
+                f"with pd as (SELECT price.code, company.name, MAX(price.close), date "
+                f"FROM price JOIN company ON price.code = company.code "
+                f"GROUP BY price.code) "
+                f"SELECT * FROM pd WHERE DATE = '{today}';"
+            )
+        elif stock_filter == "new_closing_lows":
+            sql = (
+                f"with pd as (SELECT price.code, company.name, MIN(price.close), date "
+                f"FROM price JOIN company ON price.code = company.code "
+                f"GROUP BY price.code) "
+                f"SELECT * FROM pd WHERE DATE = '{today}';"
+            )
+        else:
+            sql = (
+                f"with pd as (SELECT price.code, company.name, price.close, date "
+                f"FROM price JOIN company ON price.code = company.code "
+                f"GROUP BY price.code) "
+                f"SELECT * FROM pd;"
+            )
+
+        return pd.read_sql(sql, self.conn)
+
+    @staticmethod
+    def makeStockLists(data):
+        data_dict = data.to_dict()
+        data_dict_idxs = list(data.index)
+        data_dict_keys = list(data_dict.keys())
+        print(data_dict_keys)
+
+        stocks = list()
+        stock_dict = dict()
+        for idx in data_dict_idxs:
+            for key in data_dict_keys:
+                stock_dict[key] = data_dict[key][idx]
+            stocks.append(stock_dict.copy())
+
+        return stocks
 
 
 if __name__ == "__main__":
@@ -171,44 +203,24 @@ if __name__ == "__main__":
     # print(market_db.codes.keys())
     # print(market_db.codes.values())
 
-    data = market_db.getDailyPrice("000020", "2021-02-12", "2021-02-23")
-    data_list = data.values.tolist()
-    print(data_list)
-    for x in data_list:
-        print(x[1])
-        print(x[2])
-        print(x[3])
-        print(x[4])
-        print(x)
+    data = market_db.getDailyPrice("000020")
+    data_dict = data.to_dict()
+    data_dict_idxs = list(data.index)
+    data_dict_keys = list(data_dict.keys())
 
-    # data = data.to_dict()
-    # print(len(data))
-    # print(data["open"])
-    # print(len(data["open"]))
-    # print(data.keys())
-    # print(data.values())
-    # for key in data.keys():
-    #     print(data[key])
-    # for key, value in data.items():
-    #     print(key, value)
-    #     print("--------------")
+    stocks = []
+    stock_dict = dict()
+    for idx in data_dict_idxs:
+        for key in data_dict_keys:
+            stock_dict[key] = data_dict[key][idx]
+        stocks.append(stock_dict.copy())
+        print(stock_dict)
 
-    #
+    # for idx in data_dict_idxs:
+    #     print(data_dict["date"][idx])
+
     # market_db.getFilteredStock(None)
 
     # strats = pd.read_sql("select * from strategy", market_db.conn)
-    # strats = strats.to_dict()
-    # print(strats.items())
-
-    # for x in s_dict.keys():
-    #     print(x)
-    # for x in s_dict.values():
-    #     print(x)
-    #
-    # for key, value in strategies.iteritems():
-    #     print(key)
-    #     print(value)
-    #     print("---------------")
-    #
-    # s_json = strategies.to_json(orient="values")
-    # print(s_json)
+    # strats = strats.values.tolist()
+    # print(strats)
